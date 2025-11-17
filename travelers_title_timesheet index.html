@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travelers Title LLC - Employee Timesheet</title>
+    <!-- EmailJS Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        :root {
+            --brand-yellow: #ffd900;
+            --brand-white: #ffffff;
+            --brand-light-blue: #87ceeb;
+            --brand-blue: #4682b4;
+            --brand-dark-blue: #2e5984;
+            --brand-navy: #1e3a5f;
+            --brand-title-blue: #0066cc;
+            --light-gray: #f8f9fa;
+            --border-gray: #e1e5e9;
+            --text-gray: #6c757d;
+            --success-green: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--brand-light-blue) 0%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--brand-white);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--brand-white) 0%, #f8f9fa 100%);
+            color: var(--brand-navy);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px solid var(--brand-yellow);
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-height: 120px;
+            max-width: 400px;
+            width: auto;
+            height: auto;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--brand-title-blue);
+        }
+
+        .header p {
+            color: var(--brand-navy);
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .user-section {
+            background: linear-gradient(135deg, var(--light-gray) 0%, var(--brand-white) 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--brand-yellow);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            color: var(--brand-navy);
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--brand-navy);
+            font-size: 0.95em;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px 15px;
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: var(--brand-white);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--brand-light-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: var(--brand-blue);
+            color: var(--brand-white);
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-dark-blue);
+        }
+
+        .btn-success {
+            background: var(--brand-yellow);
+            color: var(--brand-navy);
+        }
+
+        .btn-success:hover {
+            background: #e6c300;
+        }
+
+        .btn-secondary {
+            background: var(--text-gray);
+            color: var(--brand-white);
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 25px;
+            background: var(--light-gray);
+            border-radius: 12px;
+            border: 1px solid var(--border-gray);
+        }
+
+        .month-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .timesheet-container {
+            background: var(--brand-white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-gray);
+        }
+
+        .timesheet-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 100px;
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-dark-blue) 100%);
+            color: var(--brand-white);
+        }
+
+        .timesheet-header div {
+            padding: 18px;
+            font-weight: 600;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.2);
+            font-size: 15px;
+        }
+
+        .timesheet-header div:last-child {
+            border-right: none;
+        }
+
+        .timesheet-body {
+            max-height: 650px;
+            overflow-y: auto;
+        }
+
+        .timesheet-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 100px;
+            border-bottom: 1px solid var(--border-gray);
+            transition: all 0.2s ease;
+        }
+
+        .timesheet-row:hover {
+            background-color: rgba(135, 206, 235, 0.05);
+        }
+
+        .timesheet-row:last-child {
+            border-bottom: none;
+        }
+
+        .date-cell {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .date-main {
+            font-weight: 600;
+            color: var(--brand-navy);
+            font-size: 16px;
+        }
+
+        .date-day {
+            font-size: 14px;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        .status-cell {
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-workday {
+            background: rgba(70, 130, 180, 0.15);
+            color: var(--brand-blue);
+            border: 1px solid rgba(70, 130, 180, 0.3);
+        }
+
+        .status-weekend {
+            background: rgba(108, 117, 125, 0.15);
+            color: var(--text-gray);
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+
+        .hours-cell {
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hours-input {
+            width: 75px;
+            padding: 10px 12px;
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .hours-input:focus {
+            outline: none;
+            border-color: var(--brand-light-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        .weekend .date-cell,
+        .weekend .status-cell,
+        .weekend .hours-cell {
+            background-color: #fafbfc;
+        }
+
+        .weekend .date-main {
+            color: var(--text-gray);
+        }
+
+        .today .date-cell,
+        .today .status-cell,
+        .today .hours-cell {
+            background-color: rgba(135, 206, 235, 0.1) !important;
+            border-left: 3px solid var(--brand-light-blue);
+        }
+
+        .today .date-main {
+            color: var(--brand-blue) !important;
+            font-weight: 700;
+        }
+
+        .summary-section {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--light-gray) 0%, var(--brand-white) 100%);
+            border-radius: 12px;
+            border: 1px solid var(--border-gray);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 12px;
+        }
+
+        .summary-header h3 {
+            color: var(--brand-navy);
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: var(--brand-white);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-gray);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .summary-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--brand-blue);
+            margin-bottom: 8px;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-gray);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .company-footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--light-gray);
+            color: var(--text-gray);
+            font-size: 14px;
+            border-top: 1px solid var(--border-gray);
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--brand-white);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: auto;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 25px 25px 15px 25px;
+            border-bottom: 2px solid var(--border-gray);
+            position: relative;
+        }
+
+        .modal-header h3 {
+            color: var(--brand-navy);
+            margin: 0;
+            padding-right: 30px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-gray);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--light-gray);
+            color: var(--brand-navy);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-body small {
+            color: var(--text-gray);
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 15px 25px 25px 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-green);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .status-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #d39e00;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .logo {
+                max-height: 80px;
+                max-width: 300px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .timesheet-header,
+            .timesheet-row {
+                grid-template-columns: 1fr 80px;
+            }
+
+            .timesheet-header div:nth-child(2),
+            .status-cell {
+                display: none;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .user-actions {
+                justify-content: stretch;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .export-actions {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10px auto;
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                padding: 20px 15px 15px 15px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .modal-footer .btn:last-child {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="data:image/jpeg;base64,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AAAAABABLAAAAAEAAQEsAAAAAQABOEJJTQQmAAAAAAAOAAAAAAAAAAAAAD+AAAA4QklNBA0AAAAAAAQAAABaOEJJTQQZAAAAAAAEAAAAHjhCSU0D8wAAAAAACQAAAAAAAAAAAQA4QklNJxAAAAAAAAoAAQAAAAAAAAABOEJJTQP1AAAAAABIAC9mZgABAGxmZgAGAAAAAAABAC9mZgABAKGZmgAGAAAAAAABADIAAAABAFoAAAAGAAAAAAABADUAAAABAC0AAAAGAAAAAAABOEJJTQP4AAAAAABwAAD/////////////////////////////A+gAAAAA/////////////////////////////wPoAAAAAP////////////////////////////8D6AAAAAD/////////////////////////////A+gAADhCSU0EAAAAAAAAAgAAOEJJTQQCAAAAAAACAAA4QklNBDAAAAAAAAEBADhCSU0ELQAAAAAABgABAAAAAjhCSU0ECAAAAAAAEAAAAAEAAAJAAAACQAAAAAA4QklNBB4AAAAAAAQAAAAAOEJJTQQaAAAAAANTAAAABgAAAAAAAAAAAAAEYgAACUcAAAAPAFQAcgBhAHYAZQBsAGUAcgBzACAAVABpAHQAbABlAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAlHAAAEYgAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAbnVsbAAAAAIAAAAGYm91bmRzT2JqYwAAAAEAAAAAAABSY3QxAAAABAAAAABUb3AgbG9uZwAAAAAAAAAATGVmdGxvbmcAAAAAAAAAAEJ0b21sb25nAAAEYgAAAABSZ2h0bG9uZwAACUcAAAAGc2xpY2VzVmxMcwAAAAFPYmpjAAAAAQAAAAAABXNsaWNlAAAAEgAAAAdzbGljZUlEbG9uZwAAAAAAAAAHZ3JvdXBJRGxvbmcAAAAAAAAABm9yaWdpbmVudW0AAAAMRVNsaWNlT3JpZ2luAAAADWF1dG9HZW5lcmF0ZWQAAAAAVHlwZWVudW0AAAAKRVNsaWNlVHlwZQAAAABJbWcgAAAABmJvdW5kc09iamMAAAABAAAAAAAAUmN0MQAAAAQAAAAAVG9wIGxvbmcAAAAAAAAAAExlZnRsb25nAAAAAAAAAABCdG9tbG9uZwAABGIAAAAAUmdodGxvbmcAAAlHAAAAA3VybFRFWFQAAAABAAAAAAAAbnVsbFRFWFQAAAABAAAAAAAATXNnZVRFWFQAAAABAAAAAAAGYWx0VGFnVEVYVAAAAAEAAAAAAA5jZWxsVGV4dElzSFRNTGJvb2wBAAAACGNlbGxUZXh0VEVYVAAAAAEAAAAAAAlob3J6QWxpZ25lbnVtAAAAD0VTbGljZUhvcnpBbGlnbgAAAAdkZWZhdWx0AAAACXZlcnRBbGlnbmVudW0AAAAPRVNsaWNlVmVydEFsaWduAAAAB2RlZmF1bHQAAAALYmdDb2xvclR5cGVlbnVtAAAAEUVTbGljZUJHQ29sb3JUeXBlAAAAAE5vbmUAAAAJdG9wT3V0c2V0bG9uZwAAAAAAAAAKbGVmdE91dHNldGxvbmcAAAAAAAAADGJvdHRvbU91dHNldGxvbmcAAAAAAAAAC3JpZ2h0T3V0c2V0bG9uZwAAAAAAOEJJTQQoAAAAAAAMAAAAAj/wAAAAAAAAOEJJTQQUAAAAAAAEAAAAAjhCSU0EDAAAAAAM2wAAAAEAAACgAAAATAAAAeAAAI6AAAAMvwAYAAH/2P/tAAxBZG9iZV9DTQAB/+4ADkFkb2JlAGSAAAAAAf/bAIQADAgICAkIDAkJDBELCgsRFQ8MDA8VGBMTFRMTGBEMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAENCwsNDg0QDg4QFA4ODhQUDg4ODhQUEQwMDAwMEREMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM/8AAEQgATAAABCIAAAEAAAAAEAABQAQABAAEAAAAABARAQEQEBABAAARAQAAAwABAQAAAAAAEBAQAAABQQAAEAAEAAABQQAAEAAQAAFBAAAQAAABAAFAAQAAEAAQABQAAAAABAABAQEAARARAAABAQABARAQAAEBAAAAARAQEBAQEBAQEBAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAPDADAAwADAAgICAkIDAkJDBELCgsRFQ8MDA8VGBMTFRMTGBEMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwBDQsLDQ4NEA4OEBQODg4UFA4ODg4UEQwMDAwMEREMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDP/AABEIAQ0BMAQBAgABAAABAQEAAAEB/8QAFwABAQEBAQAAAAAAAAAAAAAAAAECAwQFEQAAABAAAQUBAQAAAAAAAAAAAAAAAREhMUFRYRJCQbHB0eEyFdRf/OABEBAAAAAAAAAAAAAAAAAAAAAAAAAEBQAAAAAAAAAAAAAAAAAAAAAAAB/EACkBAAAAAAAAAAAAAAAAAAAAAAABAAAAAAABAQEAAQEBAQAAAAAAAAAAAAEAAAAAAAAAAABBEAABAgEAAAACAQQDAAAAAAAAAAAQIAAAECASIUBBESAhIDEgU4H/xAAUEQEAAAAAAAAAAAAAAAAAAACwj/OABEBAAAAAAAAAAAAAAAAAAQ/9AAEQEBAAAQMEBAUEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAABBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBB4g+lPF8kQalxY3Aw0Qw0BFt1pN9lFD1rIFTyV5K8vvKaXOYSQSARAlhSikklKTSbpJJJJT/0M1VJJJJSkkkklKSSSSUpNMwBIGmS4E5FqbqS7xDfEhayxaJoqJSS10Z+mL/J9P+c8lpHhYqVrD5aY06SgJy9v5Ty/eSfF3K4g/6D75wkYNFjfzAVrKzOEYjAIGKVk41KAVfzfCiRyAEOUZf1VdYcqQkljrlSopJ5KikokF9YUQ0PjPfKy1YuO0vNRo4o6U0QpHYoC8qL+i6Pk4q+J5nNQlI15Klt96Lur7oZqltckOjqE9ot7p6oiCo1LH5P6wHaNjl7kl9h/8G4g/w1tkY0/uMSJaX7XUnP6hzP8Azyl9kl1K1+xPFFJ1sKtgR7YvJCT7aFaL9ZQGhZY1g3VVABJgPo1TL9KRQ7Q+Qg5a8I+Xm4jXWpK6r5HhJfYlbgAC5R0X8MQ/CqEhNPVOLy3+fD3UJ8iFB6b91MKftDZW0ycqbHdQRHJt2CfOdJF1yy2nKNBd99J7dJhPgE3LNgR8d83LLEgaEWJ4KAhxFR5v+x90OE8k5dchOXNJpJJJK/r/9CglKGEQISjzMtMp+ZQ5wNpP5KuUq6TssIQ5V0SPYP8eBiVJe38DfJ5T+6W8xP5DQ5wF6E8KRSfStJJJJbF4xJJJJKUsm2Dz8Gu8dK5mTVJC4KkB8kWJ0gEQDyQOUKkhFnlkR3jylMnlJJJJKUkkkkpSSSSSlJJJJKf/rR6g0nBqE6Rz3s9EH92R3Fhuz3z/Q92Pj7v9KhR1sP8yV9P/v75XUkkklKSSSSUu5JJ7rOkklKWTKsI5wJU6SSSS1KWd43x83XwNlNskklKSSSSUpJJJJSkkkklKSSSSn/20C7E6n0Y5hqA/T4ggBg5cKQ/ff2dK/D/7mvG/8Ag5v8AUY97VJJJJKUkkkkpSSSSSlJJJJKUkkkkpSSSSSlJJJJKUkkkkpSSSSSlJJJJKUkkkkpSSSSSlJJJJKf/2f/k=" alt="Travelers Title LLC" class="logo">
+            </div>
+            <h1>Employee Timesheet</h1>
+            <p>Simple time tracking for our team • Enter hours daily for best accuracy</p>
+        </header>
+
+        <div class="main-content">
+            <div class="user-section">
+                <div class="section-title">
+                    👤 Employee Information
+                    <small style="font-weight: normal; color: var(--text-gray); margin-left: 10px;">Auto-saves as you type</small>
+                </div>
+                <div class="user-grid">
+                    <div class="form-group">
+                        <label for="employeeName">Employee Name</label>
+                        <input type="text" id="employeeName" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailAddress">Email Address</label>
+                        <input type="email" id="emailAddress" placeholder="Enter your email address">
+                    </div>
+                </div>
+                
+                <div class="user-actions">
+                    <button class="btn btn-primary" onclick="loadUserTimesheet()">
+                        📋 Load My Timesheet
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearCurrentUser()">
+                        🔄 New Employee
+                    </button>
+                </div>
+
+                <!-- Export Options Modal -->
+                <div id="exportOptionsModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>📧 Email Setup</h3>
+                            <button class="modal-close" onclick="closeExportOptions()" type="button">&times;</button>
+                        </div>
+                        <div class="modal-body"
+                            <div class="form-group">
+                                <label for="accountantEmail">Accountant's Email Address</label>
+                                <input type="email" id="accountantEmail" placeholder="accounting@travelerstitle.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="accountantName">Accountant's Name</label>
+                                <input type="text" id="accountantName" placeholder="John Smith">
+                            </div>
+                            <div class="form-group">
+                                <label for="ccEmails">CC Emails (optional)</label>
+                                <input type="text" id="ccEmails" placeholder="manager@travelerstitle.com">
+                                <small>Separate multiple emails with commas</small>
+                            </div>
+                            <hr style="margin: 20px 0; border: 1px solid var(--border-gray);">
+                            <h4 style="color: var(--brand-navy); margin-bottom: 15px;">📧 EmailJS Configuration (Optional)</h4>
+                            <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 15px;">
+                                For automatic email sending. Leave blank to use manual email method.
+                            </p>
+                            <div class="form-group">
+                                <label for="emailjsPublicKey">EmailJS Public Key</label>
+                                <input type="text" id="emailjsPublicKey" placeholder="your_emailjs_public_key">
+                                <small>Get this from your EmailJS dashboard</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="emailjsServiceId">EmailJS Service ID</label>
+                                <input type="text" id="emailjsServiceId" placeholder="your_service_id">
+                            </div>
+                            <div class="form-group">
+                                <label for="emailjsTemplateId">EmailJS Template ID</label>
+                                <input type="text" id="emailjsTemplateId" placeholder="your_template_id">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="autoSubmit"> 
+                                    Automatically submit timesheet on month-end
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" onclick="saveExportSettings()">Save Settings</button>
+                            <button class="btn btn-secondary" onclick="closeExportOptions()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="month-controls">
+                    <div class="form-group">
+                        <label for="monthSelect">Month</label>
+                        <select id="monthSelect">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="yearSelect">Year</label>
+                        <input type="number" id="yearSelect" min="2020" max="2030" value="2025">
+                    </div>
+                </div>
+                
+                <div class="export-actions">
+                    <button class="btn btn-success" onclick="exportToCSV()">
+                        📊 Download CSV
+                    </button>
+                    <button class="btn btn-primary" onclick="submitToAccountant()">
+                        📧 Send Timesheet
+                    </button>
+                    <button class="btn btn-secondary" onclick="showExportOptions()">
+                        ⚙️ Setup Email
+                    </button>
+                </div>
+            </div>
+
+            <div class="timesheet-container">
+                <div class="timesheet-header">
+                    <div>Date & Day</div>
+                    <div>Status</div>
+                    <div>Hours</div>
+                </div>
+                <div class="timesheet-body" id="timesheetBody">
+                    <!-- Timesheet rows will be generated here -->
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <div class="summary-header">
+                    <h3>📈 Monthly Summary</h3>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-value" id="totalHours">0.0</div>
+                        <div class="summary-label">Total Hours</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="workDays">0</div>
+                        <div class="summary-label">Work Days</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="avgDaily">0.0</div>
+                        <div class="summary-label">Avg Daily Hours</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="weekendHours">0.0</div>
+                        <div class="summary-label">Weekend Hours</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, rgba(135, 206, 235, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%); border-radius: 8px; border-left: 4px solid var(--brand-light-blue);">
+                <h4 style="color: var(--brand-navy); margin-bottom: 8px;">💡 Daily Entry Tips</h4>
+                <p style="color: var(--text-gray); font-size: 14px; line-height: 1.4;">
+                    <strong>Best Practice:</strong> Enter your hours each day before leaving work. Your data auto-saves instantly and you'll never lose track of your time. At month-end, just click "Send Timesheet" and you're done!
+                </p>
+            </div>
+        </div>
+
+        <footer class="company-footer">
+            <p>&copy; 2025 Travelers Title LLC - Professional Title Services</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let currentUserId = null;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('monthSelect').value = currentMonth;
+            document.getElementById('yearSelect').value = currentYear;
+            generateTimesheet();
+            
+            // Event listeners
+            document.getElementById('monthSelect').addEventListener('change', function() {
+                currentMonth = parseInt(this.value);
+                generateTimesheet();
+                loadData();
+            });
+
+            document.getElementById('yearSelect').addEventListener('change', function() {
+                currentYear = parseInt(this.value);
+                generateTimesheet();
+                loadData();
+            });
+
+            // Auto-save employee info
+            ['employeeName', 'emailAddress'].forEach(id => {
+                document.getElementById(id).addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        saveData();
+                    }
+                });
+            });
+        });
+
+        function generateUserId() {
+            const name = document.getElementById('employeeName').value.trim();
+            const email = document.getElementById('emailAddress').value.trim();
+            if (name && email) {
+                return `${name.replace(/\s+/g, '_').toLowerCase()}_${email.split('@')[0]}`;
+            }
+            return null;
+        }
+
+        function generateTimesheet() {
+            const body = document.getElementById('timesheetBody');
+            body.innerHTML = '';
+
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+            // Get today's date for highlighting
+            const today = new Date();
+            const isCurrentMonth = (currentYear === today.getFullYear() && currentMonth === today.getMonth());
+            const todayDate = today.getDate();
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dayOfWeek = date.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                const isToday = isCurrentMonth && day === todayDate;
+
+                const row = document.createElement('div');
+                row.className = `timesheet-row ${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''}`;
+
+                // Date cell with day of week
+                const dateCell = document.createElement('div');
+                dateCell.className = 'date-cell';
+                dateCell.innerHTML = `
+                    <div class="date-main">${monthNames[currentMonth]} ${day}${isToday ? ' (Today)' : ''}</div>
+                    <div class="date-day">${dayNames[dayOfWeek]}</div>
+                `;
+
+                // Status cell
+                const statusCell = document.createElement('div');
+                statusCell.className = 'status-cell';
+                statusCell.innerHTML = `
+                    <span class="status-badge ${isWeekend ? 'status-weekend' : 'status-workday'}">
+                        ${isWeekend ? 'Weekend' : 'Work Day'}
+                    </span>
+                `;
+
+                // Hours input cell
+                const hoursCell = document.createElement('div');
+                hoursCell.className = 'hours-cell';
+                
+                const hoursInput = document.createElement('input');
+                hoursInput.type = 'number';
+                hoursInput.className = 'hours-input';
+                hoursInput.min = '0';
+                hoursInput.max = '24';
+                hoursInput.step = '0.25';
+                hoursInput.placeholder = '0';
+                hoursInput.title = 'Enter hours worked (e.g., 8 or 7.5)';
+                hoursInput.id = `hours-${day}`;
+                hoursInput.addEventListener('input', function() {
+                    // Visual feedback for auto-save
+                    this.style.borderColor = 'var(--brand-light-blue)';
+                    setTimeout(() => {
+                        this.style.borderColor = 'var(--border-gray)';
+                    }, 500);
+                    
+                    saveData();
+                    updateSummary();
+                });
+
+                hoursCell.appendChild(hoursInput);
+
+                row.appendChild(dateCell);
+                row.appendChild(statusCell);
+                row.appendChild(hoursCell);
+                body.appendChild(row);
+            }
+
+            updateSummary();
+        }
+
+        function loadUserTimesheet() {
+            const userId = generateUserId();
+            if (!userId) {
+                alert('Please enter both employee name and email address first.');
+                return;
+            }
+            
+            currentUserId = userId;
+            loadData();
+            document.getElementById('userList').style.display = 'none';
+        }
+
+        function clearCurrentUser() {
+            document.getElementById('employeeName').value = '';
+            document.getElementById('emailAddress').value = '';
+            currentUserId = null;
+            
+            // Clear all hour inputs
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const input = document.getElementById(`hours-${day}`);
+                if (input) input.value = '';
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            let totalHours = 0;
+            let workDays = 0;
+            let weekendHours = 0;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const input = document.getElementById(`hours-${day}`);
+                if (input) {
+                    const hours = parseFloat(input.value) || 0;
+                    if (hours > 0) {
+                        totalHours += hours;
+                        const date = new Date(currentYear, currentMonth, day);
+                        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                        
+                        if (isWeekend) {
+                            weekendHours += hours;
+                        } else {
+                            workDays++;
+                        }
+                    }
+                }
+            }
+
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1);
+            document.getElementById('workDays').textContent = workDays;
+            document.getElementById('avgDaily').textContent = workDays > 0 ? (totalHours / workDays).toFixed(1) : '0.0';
+            document.getElementById('weekendHours').textContent = weekendHours.toFixed(1);
+        }
+
+        function saveData() {
+            const userId = generateUserId();
+            if (!userId) return;
+
+            const data = {
+                employeeName: document.getElementById('employeeName').value,
+                emailAddress: document.getElementById('emailAddress').value,
+                lastUpdated: new Date().toISOString()
+            };
+
+            // Save user info
+            localStorage.setItem(`timesheet-user-${userId}`, JSON.stringify(data));
+
+            // Save month data
+            const monthData = { hours: {} };
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const input = document.getElementById(`hours-${day}`);
+                if (input && input.value) {
+                    monthData.hours[day] = input.value;
+                }
+            }
+
+            localStorage.setItem(`timesheet-${userId}-${currentYear}-${currentMonth}`, JSON.stringify(monthData));
+        }
+
+        function loadData() {
+            const userId = generateUserId();
+            if (!userId) return;
+
+            // Load month data
+            const savedData = localStorage.getItem(`timesheet-${userId}-${currentYear}-${currentMonth}`);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const input = document.getElementById(`hours-${day}`);
+                    if (input) {
+                        input.value = data.hours[day] || '';
+                    }
+                }
+                updateSummary();
+            }
+        }
+
+        function exportToCSV() {
+            const userId = generateUserId();
+            if (!userId) {
+                alert('Please enter employee information first.');
+                return;
+            }
+
+            const csvData = generateCSVData();
+            
+            // Create and download the file
+            const blob = new Blob([csvData.content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = csvData.filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize EmailJS when settings are available
+        function initializeEmailJS() {
+            const settings = getExportSettings();
+            if (settings.emailjsPublicKey) {
+                emailjs.init(settings.emailjsPublicKey);
+                return true;
+            }
+            return false;
+        }
+
+        function submitToAccountant() {
+            const userId = generateUserId();
+            if (!userId) {
+                alert('Please enter employee name and email address first.');
+                return;
+            }
+
+            const settings = getExportSettings();
+            
+            // Check if EmailJS is configured
+            if (settings.emailjsPublicKey && settings.emailjsServiceId && settings.emailjsTemplateId && settings.accountantEmail) {
+                submitViaEmailJS();
+            } else {
+                // Fall back to manual email method
+                submitViaManualEmail();
+            }
+        }
+
+        function submitViaEmailJS() {
+            const settings = getExportSettings();
+            
+            // Initialize EmailJS
+            if (!initializeEmailJS()) {
+                alert('EmailJS not properly configured. Please check your settings.');
+                return;
+            }
+
+            const csvData = generateCSVData();
+            const employeeName = document.getElementById('employeeName').value;
+            const employeeEmail = document.getElementById('emailAddress').value;
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = monthNames[currentMonth];
+
+            // Show sending status
+            showSubmissionStatus('Sending timesheet...', 'warning');
+
+            // Prepare email parameters
+            const templateParams = {
+                to_email: settings.accountantEmail,
+                to_name: settings.accountantName || 'Accountant',
+                from_name: employeeName,
+                from_email: employeeEmail,
+                subject: `Timesheet Submission - ${employeeName} - ${monthName} ${currentYear}`,
+                employee_name: employeeName,
+                employee_email: employeeEmail,
+                period: `${monthName} ${currentYear}`,
+                total_hours: document.getElementById('totalHours').textContent,
+                work_days: document.getElementById('workDays').textContent,
+                weekend_hours: document.getElementById('weekendHours').textContent,
+                csv_data: csvData.content,
+                submission_date: new Date().toLocaleDateString(),
+                submission_time: new Date().toLocaleTimeString(),
+                reply_to: employeeEmail
+            };
+
+            // Add CC emails if provided
+            if (settings.ccEmails && settings.ccEmails.trim()) {
+                templateParams.cc_emails = settings.ccEmails;
+            }
+
+            // Send email via EmailJS
+            emailjs.send(settings.emailjsServiceId, settings.emailjsTemplateId, templateParams)
+                .then(function(response) {
+                    console.log('EmailJS SUCCESS!', response.status, response.text);
+                    showSubmissionStatus(`✅ Timesheet sent successfully to ${settings.accountantEmail}!`, 'success');
+                }, function(error) {
+                    console.log('EmailJS FAILED...', error);
+                    showSubmissionStatus('❌ Failed to send timesheet. Please try again or use manual email.', 'error');
+                    
+                    // Offer fallback to manual email
+                    if (confirm('Email sending failed. Would you like to try the manual email method instead?')) {
+                        submitViaManualEmail();
+                    }
+                });
+        }
+
+        function submitViaManualEmail() {
+            const settings = getExportSettings();
+            if (!settings.accountantEmail) {
+                alert('Please configure accountant email first using "Setup Email".');
+                showExportOptions();
+                return;
+            }
+
+            const csvData = generateCSVData();
+            const employeeName = document.getElementById('employeeName').value;
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = monthNames[currentMonth];
+            
+            const subject = `Timesheet Submission - ${employeeName} - ${monthName} ${currentYear}`;
+            const body = `Dear ${settings.accountantName || 'Accountant'},
+
+Please find attached my timesheet for ${monthName} ${currentYear}.
+
+Employee: ${employeeName}
+Email: ${document.getElementById('emailAddress').value}
+
+Summary:
+- Total Hours: ${document.getElementById('totalHours').textContent}
+- Work Days: ${document.getElementById('workDays').textContent}
+- Weekend Hours: ${document.getElementById('weekendHours').textContent}
+
+The CSV file is ready for payroll processing.
+
+Best regards,
+${employeeName}
+
+---
+Sent from Travelers Title LLC Employee Timesheet Portal`;
+
+            // Create mailto link
+            const mailtoLink = `mailto:${settings.accountantEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // Show instructions and open email client
+            if (confirm(`This will open your email client to send the timesheet to ${settings.accountantEmail}.\n\nNote: You'll need to manually attach the CSV file that will be downloaded.\n\nContinue?`)) {
+                // Download the CSV file
+                exportToCSV();
+                
+                // Open email client after a short delay
+                setTimeout(() => {
+                    window.location.href = mailtoLink;
+                }, 1000);
+
+                // Show status indicator
+                showSubmissionStatus('📧 Email prepared! CSV downloaded. Please attach the file to your email.', 'warning');
+            }
+        }
+
+        function generateCSVData() {
+            const employeeName = document.getElementById('employeeName').value || 'Unknown Employee';
+            const emailAddress = document.getElementById('emailAddress').value || 'Unknown Email';
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = monthNames[currentMonth];
+
+            let csv = `TRAVELERS TITLE LLC - EMPLOYEE TIMESHEET\n`;
+            csv += `==========================================\n`;
+            csv += `Employee Name,${employeeName}\n`;
+            csv += `Email Address,${emailAddress}\n`;
+            csv += `Period,${monthName} ${currentYear}\n`;
+            csv += `Export Date,${new Date().toLocaleDateString()}\n`;
+            csv += `Export Time,${new Date().toLocaleTimeString()}\n\n`;
+            csv += `Date,Day of Week,Hours Worked\n`;
+
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            let totalHours = 0;
+            let workDaysCount = 0;
+            let weekendHours = 0;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dayName = dayNames[date.getDay()];
+                const input = document.getElementById(`hours-${day}`);
+                const hours = input ? (parseFloat(input.value) || 0) : 0;
+                
+                csv += `${monthName} ${day},${dayName},${hours}\n`;
+                totalHours += hours;
+                
+                if (hours > 0) {
+                    if (date.getDay() === 0 || date.getDay() === 6) {
+                        weekendHours += hours;
+                    } else {
+                        workDaysCount++;
+                    }
+                }
+            }
+
+            csv += `\nSUMMARY\n`;
+            csv += `=======\n`;
+            csv += `Total Hours Worked,${totalHours.toFixed(1)}\n`;
+            csv += `Regular Work Days,${workDaysCount}\n`;
+            csv += `Weekend Hours,${weekendHours.toFixed(1)}\n`;
+            csv += `Average Hours per Work Day,${workDaysCount > 0 ? (totalHours / workDaysCount).toFixed(1) : '0.0'}\n`;
+
+            return {
+                content: csv,
+                filename: `TravelersTitle_${employeeName.replace(/\s+/g, '_')}_${monthName}_${currentYear}.csv`
+            };
+        }
+
+        function showExportOptions() {
+            const modal = document.getElementById('exportOptionsModal');
+            const settings = getExportSettings();
+            
+            // Load existing settings
+            document.getElementById('accountantEmail').value = settings.accountantEmail || '';
+            document.getElementById('accountantName').value = settings.accountantName || '';
+            document.getElementById('ccEmails').value = settings.ccEmails || '';
+            document.getElementById('emailjsPublicKey').value = settings.emailjsPublicKey || '';
+            document.getElementById('emailjsServiceId').value = settings.emailjsServiceId || '';
+            document.getElementById('emailjsTemplateId').value = settings.emailjsTemplateId || '';
+            document.getElementById('autoSubmit').checked = settings.autoSubmit || false;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeExportOptions() {
+            document.getElementById('exportOptionsModal').style.display = 'none';
+        }
+
+        function saveExportSettings() {
+            const settings = {
+                accountantEmail: document.getElementById('accountantEmail').value,
+                accountantName: document.getElementById('accountantName').value,
+                ccEmails: document.getElementById('ccEmails').value,
+                emailjsPublicKey: document.getElementById('emailjsPublicKey').value,
+                emailjsServiceId: document.getElementById('emailjsServiceId').value,
+                emailjsTemplateId: document.getElementById('emailjsTemplateId').value,
+                autoSubmit: document.getElementById('autoSubmit').checked
+            };
+
+            localStorage.setItem('travelers-export-settings', JSON.stringify(settings));
+            closeExportOptions();
+            
+            // Initialize EmailJS if configured
+            if (settings.emailjsPublicKey) {
+                initializeEmailJS();
+            }
+            
+            let message = `Settings saved!`;
+            if (settings.accountantEmail) {
+                message += ` Timesheets will be sent to ${settings.accountantEmail}`;
+            }
+            if (settings.emailjsPublicKey && settings.emailjsServiceId && settings.emailjsTemplateId) {
+                message += ` via EmailJS (automatic delivery)`;
+                showSubmissionStatus(message, 'success');
+            } else {
+                message += ` via manual email`;
+                showSubmissionStatus(message, 'warning');
+            }
+        }
+
+        function getExportSettings() {
+            const saved = localStorage.getItem('travelers-export-settings');
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        function showSubmissionStatus(message, type = 'success') {
+            // Remove any existing status
+            const existing = document.querySelector('.status-indicator');
+            if (existing) existing.remove();
+
+            // Create and show new status
+            const status = document.createElement('div');
+            status.className = `status-indicator status-${type}`;
+            
+            let icon = '✅';
+            if (type === 'warning') icon = '⚠️';
+            if (type === 'error') icon = '❌';
+            
+            status.innerHTML = `${icon} ${message}`;
+            
+            const controls = document.querySelector('.controls');
+            controls.appendChild(status);
+
+            // Auto-remove after 8 seconds
+            setTimeout(() => {
+                if (status.parentNode) {
+                    status.parentNode.removeChild(status);
+                }
+            }, 8000);
+        }
+
+        // Close modal when clicking outside or pressing ESC
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('exportOptionsModal');
+            if (e.target === modal) {
+                closeExportOptions();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('exportOptionsModal');
+                if (modal.style.display === 'flex') {
+                    closeExportOptions();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
